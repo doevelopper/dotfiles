@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+hst() { history | grep "$1"; }                          # Shorthand for `history` with added grepping
+disk-usage() { du -hs "$@" | sort -nr; }              # List disk usage of all the files in a directory (use -hr to sort on server)
+mktar() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }    # Creates a *.tar.gz archive of a file or folder
+mkzip() { zip -r "${1%%/}.zip" "$1" ; }               # Create a *.zip archive of a file or folder
+ff () { /usr/bin/find . -name "$@" ; }                # ff:       Find file under the current directory
+ffs () { /usr/bin/find . -name "$@"'*' ; }            # ffs:      Find file whose name starts with a given string
+ffe () { /usr/bin/find . -name '*'"$@" ; }            # ffe:      Find file whose name ends with a given string
+cd() { builtin cd "$@"; ll; }                         # Always list directory contents upon 'cd'
+
+myjobs() {
+    myjobs=$(jobs | wc -l);
+    if [ $myjobs -ne 0 ]; then
+        myjobs=$(echo -en "${GREEN}(${myjobs})${NORMAL}");
+    else myjobs="";
+    fi;
+}
+
+extract () {
+	if [ -f $1 ] ; then
+	  case $1 in
+		*.tar.bz2)   tar xjf $1     ;;
+		*.tar.gz)    tar xzf $1     ;;
+		*.bz2)       bunzip2 $1     ;;
+		*.rar)       unrar e $1     ;;
+		*.gz)        gunzip $1      ;;
+		*.tar)       tar xf $1      ;;
+		*.tbz2)      tar xjf $1     ;;
+		*.tgz)       tar xzf $1     ;;
+		*.zip)       unzip $1       ;;
+		*.Z)         uncompress $1  ;;
+		*.7z)        7z x $1        ;;
+		*)     echo "'$1' cannot be extracted via extract()" ;;
+		 esac
+	 else
+		 echo "'$1' is not a valid file"
+	 fi
+}
+
+multiextract () {
+	for archive in $*; do
+		if [ -f $archive ] ; then
+			case $archive in
+				*.tar.bz2)   tar xvjf $archive    ;;
+				*.tar.gz)    tar xvzf $archive    ;;
+				*.bz2)       bunzip2 $archive     ;;
+				*.rar)       rar x $archive       ;;
+				*.gz)        gunzip $archive      ;;
+				*.tar)       tar xvf $archive     ;;
+				*.tbz2)      tar xvjf $archive    ;;
+				*.tgz)       tar xvzf $archive    ;;
+				*.zip)       unzip $archive       ;;
+				*.Z)         uncompress $archive  ;;
+				*.7z)        7z x $archive        ;;
+				*)           echo "don't know how to extract '$archive'..." ;;
+			esac
+		else
+			echo "'$archive' is not a valid file!"
+		fi
+	done
+}
+
+
+# Function for determining the size of a git repository
+gsize() {
+  git gc
+  size=$(git count-objects -vH | grep size-pack | awk '{ print $2, $3 }' | xargs)
+  echo 'Repo size: $size'
+}
+
+# Common setup that applies to all environments
+setup_common() {
+  init_ssh
+  wsl_only
+
+  umask 027
+}
+
+# Remaps ssh to automatically start a tmux session on the remote server
+txssh () {
+  /usr/bin/ssh -t $@ "tmux attach || tmux new"
+}
+
+func_git_status() {
+    STATUS=$(git status 2>/dev/null |
+    awk '
+    /^On branch / {printf($3)}
+    /^You are currently rebasing/ {printf("rebasing %s", $6)}
+    /^Initial commit/ {printf(" (init)")}
+    /^Untracked files/ {printf(" |+ ")}
+    /^Changes not staged / {printf(" |? ")}
+    /^Changes to be committed/ {printf(" |* ")}
+    /^Your branch is ahead of/ {printf(" |^ ")}
+    /^fatal: not a git repository/ {printf("\|/")}
+    ')
+    if [ -n "$STATUS" ]; then
+        echo -ne " ($STATUS) [$(git log 2> /dev/null | head -n 3 | grep ^Date | cut -f4- -d' ')]"
+    fi
+}
+
+#startline="\[\033[0;32m\]\[\033[0m\033[0;38m\]\u\[\033[0;36m\]@\[\033[0;36m\]\h on ${_ip_add}:\w\[\033[0;32m\]"
+#endline="\[\033[0;32m\]└─\[\033[0m\033[0;31m\] [\D{%F %T}] \$\[\033[0m\033[0;32m\] >>>\[\033[0m\] "
+#PS1="${__ps1_startline} \$(__git_status)\n ${__ps1_endline}"
+
+rightprompt()
+{
+    printf "%*s" $COLUMNS "right prompt"
+}
+#PS1='\[$(tput sc; rightprompt; tput rc)\]left prompt > '
+
+# Local additions - Don't edit below this line
+if [[ -f ".functions.local" ]]; then
+  source ".functions.local"
+fi

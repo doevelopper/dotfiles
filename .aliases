@@ -1,0 +1,104 @@
+#!/usr/bin/env bas
+
+alias ds="du -h --max-depth=1"
+alias gitpersonal="git config user.name 'Adrien H.L' && git config user.email 'happyman@hotmail.fr'"
+alias gitce="git config --edit"
+alias gitcge="git config --global --edit"
+# Show untracked files
+alias gitu='git ls-files . --exclude-standard --others'
+alias gitgh='cd "$(git rev-parse --show-toplevel)"'
+# Show commits since last pull
+alias gitnew="git log HEAD@{1}..HEAD@{0}"
+alias gitst="git stash"
+alias gitstb="git stash branch"
+alias gitstd="git stash drop"
+alias gitstl="git stash list"
+# Add uncommitted and unstaged changes to the last commit
+alias gitcaa="git commit -a --amend -C HEAD"
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias ll='ls -alh'                                                              # List files
+alias llr='ls -alhr'                                                            # List files (reverse)
+alias lls='ls -alhS'                                                            # List files by size
+alias llsr='ls -alhSr'                                                          # List files by size (reverse)
+alias lld='ls -alht'                                                            # List files by date
+alias lldr='ls -alhtr'                                                          # List files by date (reverse)
+alias lldc='ls -alhtU'                                                          # List files by date created
+alias lldcr='ls -alhtUr'                                                        # List files by date created (reverse)
+alias home='clear && cd ~ && ll'                                                # Home directory
+alias downloads='clear && cd ~/Downloads && ll'                                 # Downloads directory
+alias diffs='diff --side-by-side --suppress-common-lines'
+#alias mktar='tar -cvf'
+alias mkbz2='tar -cvjf'
+alias mkgz='tar -cvzf'
+alias svi='sudo vi'
+alias vis='vim "+set si"'
+alias perm="stat -f '%Lp'"                                                      # View the permissions of a file/dir as a number
+alias atree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"             # List the file structure of the current directory
+alias lsd='ll | grep "^d"'                  # Preferred 'ls' implementation (only directories)
+alias cp='cp -iv'                           # Preferred 'cp' implementation
+alias mv='mv -iv'                           # Preferred 'mv' implementation
+alias mkdir='mkdir -pv'                     # Preferred 'mkdir' implementation
+alias ll='ls -FGlAhp'                       # Preferred 'ls' implementation
+alias less='less -FSRXc'                    # Preferred 'less' implementation
+alias cd..='cd ../'                         # Go back 1 directory level (for fast typers)
+alias ..='cd ../'                           # Go back 1 directory level
+alias ...='cd ../../'                       # Go back 2 directory levels
+alias .3='cd ../../../'                     # Go back 3 directory levels
+alias .4='cd ../../../../'                  # Go back 4 directory levels
+alias .5='cd ../../../../../'               # Go back 5 directory levels
+alias .6='cd ../../../../../../'            # Go back 6 directory levels
+alias edit='subl'                           # edit:         Opens any file in sublime editor
+alias ~="cd ~"                              # ~:            Go Home
+alias cls='clear'                            # c:            Clear terminal display
+alias which='type -all'                     # which:        Find executables
+alias path='echo -e ${PATH//:/\\n}'         # path:         Echo all executable Paths
+alias show_options='shopt'                  # Show_options: display bash options settings
+alias fix_stty='stty sane'                  # fix_stty:     Restore terminal settings when screwed up
+alias cic='set completion-ignore-case On'   # cic:          Make tab-completion case-insensitive
+alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
+alias sagi='sudo apt-get install'
+alias sagu='sudo apt-get update'
+alias sags='sudo apt-cache search'
+alias sagsh='sudo apt-cache show'
+alias sagr='sudo apt-get remove'
+alias sagd='sudo apt-get dist-upgrade'
+alias sagc='sudo apt-get clean'
+alias sagac='sudo apt-get autoclean'
+alias saptu='sudo apt-get update && sudo apt-get upgrade && sudo apt-get autoremove && sudo apt-get autoclean'
+alias yolo='!git add -A && git commit -m "$(curl --silent --fail https://whatthecommit.com/index.txt)"'
+alias fuckit='git commit -am "$(curl --silent --fail whatthecommit.com/index.txt)"'
+alias gitwip='git commit -am ""[WIP]$(curl --silent --fail whatthecommit.com/index.txt)"'
+alias gitwipskip='git commit -am ""[WIP]$(curl --silent --fail whatthecommit.com/index.txt) [ci skip]"'
+alias gitautopush='git add -A && git commit -m "$(curl --silent --fail https://whatthecommit.com/index.txt) && git flow feature publish"'
+alias fastccm='git add -A && git commit -m "[WIP] $(curl --silent --fail https://whatthecommit.com/index.txt)" && git
+flow feature publish'
+alias fastcskip='git add -A && git commit -m "[WIP] $(curl --silent --fail https://whatthecommit.com/index.txt) [ci skip]" &&
+    git flow feature publish'
+alias fortunewip='git add -A && git commit -m "[WIP] $(fortune -s -n 80)" && git flow feature publish'
+alias fortuneskip='git add -A && git commit -m "[WIP] $(fortune -s -n 80) [ci skip]" && git flow feature publish'
+#alias sapt='sudo apt-get'
+#alias saptu='sudo apt-get update && sudo apt-get upgrade && sudo apt-get autoremove && sudo apt-get autoclean'
+#alias saptg=`apt-get update`             #->  apt update
+#alias  `apt-get upgrade`            #->  apt upgrade
+#alias  `apt-get dist-upgrade`       #->  apt full-upgrade
+#alias  `apt-get install `    #->  apt install package
+#alias  `apt-get remove `     #->  apt remove package
+#alias  `apt-get autoremove`         #->  apt autoremove
+#alias  `apt-cache search`     #->  apt search string
+#alias  `apt-cache policy`    #->  apt list -a package
+#alias  `apt-cache show`      #->  apt show package
+#alias  `apt-cache showpkg`   #->  apt show -a package
+
+# Bash only
+if [ -n "$BASH_VERSION" ]; then
+  alias bc="vi ~/.bashrc"       # Edit bash config
+  alias bcr="source ~/.bashrc"  # Reload bash config
+fi
+
+# Local additions - Don't edit below this line
+if [[ -f "$HOME/.aliases.local" ]]; then
+  source "$HOME/.aliases.local"
+fi
