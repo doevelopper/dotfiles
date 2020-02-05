@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/home/happyman/devevlopments/rob-poc-edison-elk-stack/swqa'
+let g:netrw_dirhist_2='/home/happyman/devevlopments/rob-poc-edison-elk-stack/swqa/k8s-deploy'
+let g:netrw_dirhist_3='/home/happyman/devevlopments/rob-poc-edison-elk-stack/swqa/k8s-deploy/elk'
+let g:netrw_dirhist_4='/home/happyman/devevlopments/rob-poc-edison-elk-stack/swqa/k8s-deploy'
+let g:netrw_dirhist_5='/home/happyman/devevlopments/rob-poc-edison-elk-stack/swqa/k8s-deploy/edison-elk-stack'
+let g:netrw_dirhist_6='/home/happyman/devevlopments/rob-poc-edison-elk-stack/swqa/k8s-deploy'
+let g:netrw_dirhist_7='/home/happyman/devevlopments/rob-poc-edison-elk-stack/swqa'
+let g:netrw_dirhist_8='/home/happyman/devevlopments/rob-poc-edison-elk-stack'
