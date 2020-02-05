@@ -29,6 +29,7 @@ alias lldc='ls -alhtU'                                                          
 alias lldcr='ls -alhtUr'                                                        # List files by date created (reverse)
 alias home='clear && cd ~ && ll'                                                # Home directory
 alias downloads='clear && cd ~/Downloads && ll'                                 # Downloads directory
+alias diffs='diff --side-by-side --suppress-common-lines'
 #alias mktar='tar -cvf'
 alias mkbz2='tar -cvjf'
 alias mkgz='tar -cvzf'
