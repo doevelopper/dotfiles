@@ -109,6 +109,172 @@ rightprompt()
 }
 #PS1='\[$(tput sc; rightprompt; tput rc)\]left prompt > '
 
+
+function kcc () {
+    usage () {
+        echo -en "Usage: $0 <context> <namespace>\n"
+    }
+    result () {
+        echo -en "-> Context: \e[96m$context\e[0m\n-> Namespace: \e[92m$namespace\n\e[0m"
+    }
+    if  [ $# -eq 0 ] ; then
+        ## If no options, print the current context/cluster and namespace
+        context="$(kubectl config current-context 2>/dev/null)"
+        namespace="$(kubectl config view -o "jsonpath={.contexts[?(@.name==\"$context\")].context.namespace}")"
+        result
+    elif [ $# -eq 2 ]; then
+        ## If options, assume time to set
+        context="$1"
+        namespace="$2"
+        kubectl config use-context "$context" > /dev/null
+        kubectl config set-context "$context" --namespace="$namespace" > /dev/null
+        result
+    else
+        usage
+    fi
+
+}
+
+# --- kubectl secrets ---
+kgetsec () {
+
+  if [[ -z "$1" ]]
+  then
+      kubectl get secrets
+  elif [[ "$1" == "used" ]]
+  then
+     kubectl get pods -o json | jq '.items[].spec.containers[].env[]?.valueFrom.secretKeyRef.name' | grep -v null | sort | uniq
+  else
+    # display usage if wrong args are passed
+    echo "Usage: kgetsec - Describes all secrets"
+    echo "Parameters: "
+    echo "   used - Shows curently used secrets by a pod"
+    echo "Example:"
+    echo "   kgetsec used"
+  fi
+}
+
+# create secrets
+create_sec_help() {
+    case "$1" in
+      args0)
+       echo "Usage: kcreatesec - Create a secret with username and password"
+       echo "Parameters: "
+       echo "   -s - name of the secret"
+       echo "   -u - username"
+       echo "   -p - password"
+       echo "Example:"
+       echo "   kcreatesec -s secretname -u superuser -p superpassword"
+       ;;
+     args1)
+       echo "Missing parameter. Please supply both username and passwords"
+       echo "Usage: kcreatesec - Create a secret with username and password"
+       echo "Parameters: "
+       echo "   -s - name of the secret"
+       echo "   -u - username"
+       echo "   -p - password"
+       echo "Example:"
+       echo "   kcreatesec -s secretname -u superuser -p superpassword"
+       ;;
+     args2)
+       echo "Incorrect parameters supplied."
+       echo "Usage: kcreatesec - Create a secret with username and password"
+       echo "Parameters: "
+       echo "   -s - name of the secret"
+       echo "   -u - username"
+       echo "   -p - password"
+       echo "Example:"
+       echo "   kcreatesec -s secretname -u superuser -p superpassword"
+       ;;
+   esac
+}
+
+kcreatesec() {
+    if [[ ("$#" -eq 0) || ("$1" == "help") ]]
+    then
+       create_sec_help "args0"
+    elif [[ ("$#" -eq 1) ]]
+    then
+       create_sec_help "args1"
+    elif [[ ("$3" != "-u") || ("$5" != "-p") ]]
+    then
+       create_sec_help "args2"
+    fi
+    while getopts "s:u:p:" opt; do
+       case "$opt" in
+          s) secret_name="$OPTARG"
+            ;;
+          u) user_name="$OPTARG"
+            ;;
+          p) password="$OPTARG"
+            ;;
+          \?) create_sec_help "args2"
+        esac
+     done
+cat <<EOF > "${secret_name}".yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ${secret_name}
+type: Opaque
+data:
+  password: $(echo -n ${user_name} | base64)
+  username: $(echo -n ${password} | base64)
+EOF
+echo "${secret_name}.yml file has been created in current directory."
+echo "Creating the secret from ${secret_name}.yml"
+kubectl create -f ${secret_name}.yml
+
+}
+
+# --- kubectl edit ---
+kedit () {
+
+   case "$1" in
+      svc)
+         if [[ ("$2" != "help") && (-z "$3") ]]
+         then
+             kubectl edit svc
+         elif [[ "$1" == "help" && (-z "$3") ]]
+         then
+            echo "Usage: kedit svc service-name - Edit a service with default editor"
+            echo "Parameters: "
+            echo "   editor - Edit a service with an editor of your choice"
+            echo "Example:"
+            echo "   kedit svc nano service-name"
+         else
+            KUBE_EDITOR="$2" kubectl edit svc
+         fi
+         ;;
+      dep)
+         if [[ ("$2" != "help") && (-z "$3") ]]
+         then
+             kubectl edit svc
+         elif [[ "$1" == "help" && (-z "$3") ]]
+         then
+            echo "Usage: kedit dep deployment-name - Edit a deployment with default editor"
+            echo "Parameters: "
+            echo "   editor - Edit a deployment with an editor of your choice"
+            echo "Example:"
+            echo "   kedit dep nano deployment-name"
+         else
+            KUBE_EDITOR="$2" kubectl edit deployment
+         fi
+         ;;
+      *)
+        echo "============================"
+        echo "Edit a service or deployment"
+        echo "============================"
+        echo "Usage: kedit svc/dep service-name/deployment-name - Edit a deployment/service with default editor (VIM FTW)"
+        echo " "
+        echo "Parameters: "
+        echo "   editor - Edit a service/deployment with an editor of your choice"
+        echo "Example:"
+        echo "   kedit svc nano service-name"
+        echo "   kedit dep nano deployment-name"
+   esac
+}
+
 # Local additions - Don't edit below this line
 if [[ -f ".functions.local" ]]; then
   source ".functions.local"
