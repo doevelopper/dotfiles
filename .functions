@@ -275,6 +275,40 @@ kedit () {
    esac
 }
 
+gitlog () {
+    err() {
+        echo -e "\e[01;31m$@\e[0m" >&2
+    }
+    helpme () {
+        err "  GIT LOGS______________________"
+        err "    USAGE: gitlog [from_commit] [to_commit]"
+        err "           gitlog HEAD^ HEAD"
+        err "           gitlog branch1 branch2"
+    }
+    cmt1=$1
+    cmt2=$2
+    [ -z $cmt1 ] && [ -z $cmt2 ] && \
+        run=1 && \
+        git log --pretty=format:"%h%x09%an%x09%ad%x09%s"
+    [ $cmt1 ] && [ $cmt2 ] && \
+        run=1 && \
+        git log --pretty=format:"%h%x09%an%x09%ad%x09%s" $cmt1..$cmt2
+    [ -z $run ] && helpme
+    unset cmt1 cmt2 run
+}
+
+gl() {
+    if (( $# == 0 )); then
+        git log --pretty=format:%h%x09%an%x09%ad%x09%s
+    elif (( $# == 2 )); then
+        git log --pretty=format:%h%x09%an%x09%ad%x09%s "$1".."$2"
+    else
+        printf '\e[01;31m%s\e[0m\n' \
+            '  GIT LOGS______________________' \
+            '    USAGE: gl [from_commit] [to_commit]' >&2
+    fi
+}
+
 # Local additions - Don't edit below this line
 if [[ -f ".functions.local" ]]; then
   source ".functions.local"
